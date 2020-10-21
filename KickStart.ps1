@@ -38,7 +38,7 @@ Write-OutputMessage "KICKSTART - Angular installing (this may take a while)"
 Write-OutputMessage "=================================================================================================================================="
 
 Set-Location angular
-npm install
+Start-Process npm install
 Set-Location ..
 
 Write-OutputMessage ""
@@ -56,6 +56,7 @@ Write-OutputMessage "===========================================================
 
 Set-Location src
 Set-Location NAME_OF_SOLUTION.Migrator
+(Get-Content -path appsettings.json -Raw) -replace 'TestDb','NAME_OF_SOLUTION' | Set-Content -Path appsettings.json
 dotnet run --project "NAME_OF_SOLUTION.Migrator.csproj"
 
 Set-Location ..
