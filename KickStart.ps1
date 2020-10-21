@@ -58,7 +58,7 @@ Write-OutputMessage "KICKSTART - Running DB Migrator"
 Write-OutputMessage "=================================================================================================================================="
 
 Set-Location src
-Set-Location MIGRATOR_FOLDER
+Set-Location NAME_OF_SOLUTION.Migrator
 dotnet run --project "NAME_OF_SOLUTION.Migrator.csproj"
 
 Set-Location ..
