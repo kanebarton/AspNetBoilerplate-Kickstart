@@ -15,10 +15,7 @@ Write-OutputMessage "===========================================================
 choco install 7zip
 choco install python2
 choco install nvm --version=1.1.5
-choco install netfx-4.8-devpack
-choco install netfx-4.7.2-devpack
 choco install dotnetcore-sdk --version=3.1.403
-choco install azure-functions-core-tools-2
 choco install azure-functions-core-tools-3
 choco install azure-cli
 choco install nuget.commandline
