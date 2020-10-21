@@ -14,11 +14,10 @@ Write-OutputMessage "===========================================================
 # CHOCOLATEY
 choco install 7zip
 choco install python2
-choco install yarn --version=1.22.4
 choco install nvm --version=1.1.5
 choco install netfx-4.8-devpack
 choco install netfx-4.7.2-devpack
-choco install dotnetcore-sdk --version=3.1.401
+choco install dotnetcore-sdk --version=3.1.403
 choco install azure-functions-core-tools-2
 choco install azure-functions-core-tools-3
 choco install azure-cli
@@ -42,7 +41,7 @@ Write-OutputMessage "KICKSTART - Angular installing (this may take a while)"
 Write-OutputMessage "=================================================================================================================================="
 
 Set-Location angular
-yarn install
+npm install
 Set-Location ..
 
 Write-OutputMessage ""
