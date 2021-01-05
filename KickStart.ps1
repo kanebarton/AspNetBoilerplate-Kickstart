@@ -1,26 +1,73 @@
-function Write-OutputMessage {
-	Param(
-        [parameter(Mandatory=$true)] $message
-    )
-
+function Write-OutputMessage { Param([parameter(Mandatory=$true)] $message)
     Write-Host $message -ForegroundColor Cyan 
+}
+
+function Write-InstructionMessage {	Param([parameter(Mandatory=$true)] $message)
+    Write-Host $message -ForegroundColor Green 
+}
+
+function Install-ChocoPackage {
+	Param(
+		[parameter(Mandatory=$true)] $name,
+		[parameter(Mandatory=$false)] $version
+	)
+
+	# get a list of packages, loop through them all to check if any is installed
+	$chocList = powershell choco list -lo 
+	foreach($chocoPackage in $chocList) {
+		if ([string]::IsNullOrEmpty($version)) {
+			$exists = $chocoPackage.ToLower().StartsWith($name.ToLower())
+			
+			if ($exists) {
+				Write-Output "Package $name installed, skipping"
+				return
+			}
+		}
+		else {
+			$exists = $chocoPackage.ToLower().StartsWith("$name $version".ToLower())
+		
+			if ($exists) {
+				Write-Output "Package $name v$version installed, skipping"
+				return
+			}
+		}		
+	}
+
+	if ([string]::IsNullOrEmpty($version)) {
+		Write-Output "Package $name installing"
+		choco install $name
+	}
+	else {
+		Write-Output "Package $name installing specific version $version"
+		choco install $name --version=$version
+	}
 }
 
 Write-OutputMessage ""
 Write-OutputMessage "=================================================================================================================================="
-Write-OutputMessage "KICKSTART - Chocolatey installations (this may take a while)"
+Write-OutputMessage "KICKSTART - Chocolatey package manager (this may take a while)"
 Write-OutputMessage "=================================================================================================================================="
 
 # CHOCOLATEY
-choco install 7zip
-choco install python2
-choco install nvm --version=1.1.5
-choco install dotnetcore-sdk --version=3.1.403
-choco install azure-functions-core-tools-3
-choco install azure-cli
-choco install nuget.commandline
+$testChocoInstall = powershell choco -v
+if(-not($testChocoInstall)){
+    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+}
+else{
+    Write-Output "Chocolatey version $testChocoInstall is already installed"
+}
 
-RefreshEnv
+Write-OutputMessage ""
+Write-OutputMessage "=================================================================================================================================="
+Write-OutputMessage "KICKSTART - Chocolatey packages (this may take a while)"
+Write-OutputMessage "=================================================================================================================================="
+
+# PACKAGES
+Install-ChocoPackage "7zip"
+Install-ChocoPackage "python2"
+Install-ChocoPackage "nvm" "1.1.5"
+Install-ChocoPackage "dotnet-sdk"
+Install-ChocoPackage "nuget.commandline"
 
 # NVM
 Write-OutputMessage ""
@@ -28,8 +75,9 @@ Write-OutputMessage "===========================================================
 Write-OutputMessage "KICKSTART - NPM version switch"
 Write-OutputMessage "=================================================================================================================================="
 
-nvm install 12.18.4
-nvm use 12.18.4
+$nodeVersion = "14.15.4"
+nvm install $nodeVersion
+nvm use $nodeVersion
 
 # ANGULAR
 Write-OutputMessage ""
@@ -38,7 +86,9 @@ Write-OutputMessage "KICKSTART - Angular installing (this may take a while)"
 Write-OutputMessage "=================================================================================================================================="
 
 Set-Location angular
-Start-Process npm install
+$npm = "$env:NVM_HOME\v$nodeVersion\npm.cmd"
+$npmArguments = "install"
+Start-Process $npm $npmArguments -NoNewWindow -Wait
 Set-Location ..
 
 Write-OutputMessage ""
@@ -67,3 +117,10 @@ Write-OutputMessage ""
 Write-OutputMessage "=================================================================================================================================="
 Write-OutputMessage "KICKSTART - Finished"
 Write-OutputMessage "=================================================================================================================================="
+Write-InstructionMessage "Usage:"
+Write-InstructionMessage "In a new command terminal from the aspnet-core/src/HelloWorldAbpDemo.Web.Host folder run 'dotnet run HelloWorldAbpDemo.Web.Host.csproj'"
+Write-InstructionMessage "Open the API http://localhost:21021/"
+Write-InstructionMessage "In a new command terminal from the angular folder run 'npm run start'"
+Write-InstructionMessage "Open the UI http://localhost:4200/"
+Write-InstructionMessage "	default admin username: admin"
+Write-InstructionMessage "	default admin password: 123qwe"
